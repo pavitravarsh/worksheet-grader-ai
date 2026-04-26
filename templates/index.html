@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Worksheet Grader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="main-container">
+        <h1>AI Worksheet Grader</h1>
+        <p class="subtitle">Upload a handwritten assignment and let AI do the heavy lifting</p>
+
+        <div class="upload-area" id="upload-area">
+            <input type="file" id="file" name="file" accept=".jpg,.jpeg,.png,.pdf">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text"><strong>Click to upload</strong> or drag and drop</div>
+            <div class="upload-subtext">Supports PDF, JPG, PNG (Max 16MB)</div>
+            <div id="file-name"></div>
+        </div>
+
+        <button class="btn-grade" onclick="uploadFile()">Grade Assignment ✨</button>
+
+        <div class="loader-container" id="loading">
+            <div class="spinner"></div>
+            <div style="color: #6B7280; font-weight: 500;">Analyzing handwriting and evaluating concepts...</div>
+        </div>
+
+        <div id="results">
+            <h2 class="results-header">Grading Report</h2>
+            <div id="questions-container"></div>
+            <div class="total-score-box" id="total-score-box" style="display: none;">
+                <h3>Total Score</h3>
+                <div class="big-score" id="total-score-display">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File Upload UI Interaction
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file');
+        const fileNameDisplay = document.getElementById('file-name');
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileNameDisplay.innerHTML = `Selected: ${e.target.files[0].name}`;
+                uploadArea.style.borderColor = 'var(--primary)';
+                uploadArea.style.background = 'rgba(79, 70, 229, 0.05)';
+            } else {
+                fileNameDisplay.innerHTML = '';
+                uploadArea.style.borderColor = '#CBD5E1';
+                uploadArea.style.background = 'rgba(255, 255, 255, 0.6)';
+            }
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                fileNameDisplay.innerHTML = `Selected: ${e.dataTransfer.files[0].name}`;
+                uploadArea.style.borderColor = 'var(--primary)';
+                uploadArea.style.background = 'rgba(79, 70, 229, 0.05)';
+            }
+        });
+
+        // Grading Logic
+        async function uploadFile() {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Please select a file to grade.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('questions-container').innerHTML = '';
+            document.getElementById('total-score-box').style.display = 'none';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResults(data.grading);
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert("An error occurred during grading.");
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function displayResults(grading) {
+            const container = document.getElementById('questions-container');
+            const resultsDiv = document.getElementById('results');
+            const totalScoreBox = document.getElementById('total-score-box');
+            let totalScore = grading.total_score || 0;
+
+            for (const [key, value] of Object.entries(grading)) {
+                if (key === 'total_score') continue;
+
+                const card = document.createElement('div');
+                card.className = 'question-card';
+
+                // Determine badge color
+                let badgeClass = 'score-badge';
+                if (value.score < 3) badgeClass += ' low';
+                else if (value.score < 5) badgeClass += ' medium';
+
+                // Missing points HTML
+                const missingHtml = value.missing_points && value.missing_points.length > 0
+                    ? `<div class="missing-points"><strong>Missing Concepts:</strong><ul>${value.missing_points.map(p => `<li>${p}</li>`).join('')}</ul></div>`
+                    : `<div class="perfect-score">🌟 Excellent! All key concepts covered perfectly.</div>`;
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="q-title">${key}</div>
+                        <div class="${badgeClass}">Score: ${value.score} / 5</div>
+                    </div>
+                    <div class="feedback-text"><strong>Feedback:</strong> ${value.feedback}</div>
+                    ${missingHtml}
+                `;
+                container.appendChild(card);
+            }
+
+            document.getElementById('total-score-display').innerText = totalScore;
+            resultsDiv.style.display = 'block';
+            totalScoreBox.style.display = 'block';
+
+            // Scroll to results smoothly
+            setTimeout(() => {
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    </script>
+</body>
+
+</html>
