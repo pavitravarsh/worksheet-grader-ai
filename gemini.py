@@ -32,7 +32,7 @@ def extract_text(file_path):
 
     images = []
 
-    # 📄 If PDF → convert pages to images
+    # If PDF → convert pages to images
     if file_path.lower().endswith(".pdf"):
         doc = fitz.open(file_path)
 
@@ -43,12 +43,12 @@ def extract_text(file_path):
 
         doc.close()
 
-    # 🖼️ If image
+    # If image
     else:
         img = Image.open(file_path).convert("RGB")
         images.append(img)
 
-    # 🚀 OpenAI format expects content like this
+    # OpenAI format expects content like this
     content = [{"type": "text", "text": prompt}]
 
     for img in images:

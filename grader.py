@@ -1,73 +1,109 @@
 import json
 import os
+import time
 from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
+
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
-def grade_answers(student_answers_json, answer_key_json):
+
+def grade_answers(student_answers_json, answer_key_json, retries=2):
     """
-    Semantically grades student answers against the answer key using a rubric.
+    Semantic grading with fallback safety
     """
+
+    # SAFETY: ensure non-empty answers
+    for qid in student_answers_json:
+        if not student_answers_json[qid] or len(student_answers_json[qid].strip()) < 10:
+            print(f"Empty/weak answer detected for {qid}, using fallback")
+            student_answers_json[qid] = "No meaningful answer provided."
+
     prompt = f"""
-You are an expert evaluator. Compare the student's answers with the correct answer key. 
-Do not use exact keyword matching. Evaluate meaning based on the following rubric:
-1. Concept Correctness: Is the core idea right?
-2. Key Terms: Did they use appropriate terminology?
-3. Explanation Depth: Is the explanation sufficient?
+You are an expert evaluator.
+
+IMPORTANT:
+- Accept different wording if concept is correct
+- Focus on meaning, not exact keywords
+- Use keywords only as guidance
+
+CRITICAL:
+- Answers may include explanation + steps → treat as ONE answer
+- Do NOT penalize for formatting differences
+
+SCORING RULES:
+- Full explanation with steps → 4–5 marks
+- Partial but correct → 3–4 marks
+- Minimal → 1–2 marks
+- Empty/irrelevant → 0
 
 Student Answers:
-{json.dumps(student_answers_json)}
+{json.dumps(student_answers_json, indent=2)}
 
-Correct Answer Key:
-{json.dumps(answer_key_json)}
+Answer Key:
+{json.dumps(answer_key_json, indent=2)}
 
-For each question present in the student answers, assign a score out of 5 based on the rubric.
-
-Return a JSON object strictly following this structure:
+Return STRICT JSON:
 {{
   "Q1": {{
     "score": 4,
-    "feedback": "Explain why they got this score based on the rubric",
-    "missing_points": ["missing point 1", "missing point 2"]
+    "confidence": 0.85,
+    "feedback": "Reason",
+    "missing_points": []
   }},
-  "total_score": <sum of all scores>
+  "total_score": 4
 }}
 
-Do not include any markdown formatting like ```json, just return the raw JSON string.
+Rules:
+- Only JSON
+- No markdown
 """
-    try:
-        response = client.chat.completions.create(
-            model="google/gemini-2.5-flash",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=4000
-        )
-    except Exception as e:
-        import time
-        if "429" in str(e):
-            print("Quota exceeded in grader, retrying after 8 seconds...")
-            time.sleep(8)
+
+    for attempt in range(retries + 1):
+        try:
             response = client.chat.completions.create(
-                model="google/gemini-2.5-flash",
+                model="openai/gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
                 max_tokens=4000
             )
-        else:
-            raise e
-            
-    response_text = response.choices[0].message.content.strip()
-    
-    # Cleanup markdown if model returns it
-    if response_text.startswith("```json"):
-        response_text = response_text[7:]
-    elif response_text.startswith("```"):
-        response_text = response_text[3:]
-        
-    if response_text.endswith("```"):
-        response_text = response_text[:-3]
-        
-    return json.loads(response_text.strip())
+
+            text = response.choices[0].message.content.strip()
+
+            # cleanup
+            if text.startswith("```"):
+                text = text.split("```")[1]
+            if text.endswith("```"):
+                text = text[:-3]
+
+            text = text.strip()
+
+            try:
+                data = json.loads(text)
+
+                # ensure total score
+                if "total_score" not in data:
+                    total = sum(
+                        v.get("score", 0)
+                        for k, v in data.items()
+                        if k.startswith("Q")
+                    )
+                    data["total_score"] = total
+
+                return data
+
+            except:
+                print("Grader JSON failed:")
+                print(text)
+
+        except Exception as e:
+            print(f"Grader error: {e}")
+            time.sleep(3)
+
+    return {
+        "error": "Grading failed"
+    }

@@ -1,0 +1,110 @@
+{
+  "What is photosynthesis?": {
+    "answer": "Photosynthesis is the process by which green plants, algae, and some bacteria convert light energy into chemical energy, using carbon dioxide and water to produce glucose and oxygen. It primarily occurs in the chloroplasts of plant cells.",
+    "keywords": [
+      "photosynthesis",
+      "plants",
+      "light energy",
+      "glucose",
+      "chloroplasts"
+    ]
+  },
+  "What is gravity?": {
+    "answer": "Gravity is a natural force that attracts two bodies toward each other, depending on their masses and the distance between them. It is responsible for keeping planets in orbit around stars and objects on the ground.",
+    "keywords": [
+      "force",
+      "attraction",
+      "mass",
+      "orbit",
+      "distance"
+    ]
+  },
+  "What is Photosynthesis?": {
+    "answer": "Photosynthesis is the process by which green plants, algae, and some bacteria convert light energy into chemical energy, using carbon dioxide and water to produce glucose and oxygen. This process is essential for life on Earth as it provides food and oxygen.",
+    "keywords": [
+      "Photosynthesis",
+      "plants",
+      "light energy",
+      "glucose",
+      "oxygen"
+    ]
+  },
+  "This process takes place mainly in the leaves of plants, inside structures called chloroplasts that contain chlorophyll, the green pigment responsible for absorbing sunlight.": {
+    "answer": "The process described is photosynthesis, where plants convert sunlight into energy using chlorophyll in chloroplasts.",
+    "keywords": [
+      "photosynthesis",
+      "chloroplasts",
+      "chlorophyll",
+      "sunlight",
+      "energy"
+    ]
+  },
+  "what is Photosynthesis?": {
+    "answer": "Photosynthesis is the process by which green plants, algae, and some bacteria convert light energy into chemical energy, using carbon dioxide and water to produce glucose and oxygen. It primarily occurs in the chloroplasts of plant cells.",
+    "keywords": [
+      "Photosynthesis",
+      "plants",
+      "light energy",
+      "glucose",
+      "chloroplasts"
+    ]
+  },
+  "This process takes place mainly in": {
+    "answer": "This process takes place mainly in the mitochondria, where cellular respiration occurs to produce energy in the form of ATP.",
+    "keywords": [
+      "mitochondria",
+      "cellular respiration",
+      "ATP"
+    ]
+  },
+  "Gradient descent in deep learning is the core optimizations algorithm used in training deep learning models (like neural networks) to minimize the loss function, which measures how far off the model\u2019s predictions are from the actual values. It adjusts the model's weights & biases to reduce prediction error. In deep learning models have many layers and millions of parameters. These parameters determine how the model behaves. The right values make the model accurate. Gradient descent is what helps find these right values. Steps of it are present below 1. Initialise weights 2. Forward pass - Input data flows through the model 3. Loss computation - Prediction is captured with actual 4. Backward pass - calculates gradient of loss 5. Weight update using gradient descent.": {
+    "answer": "Gradient descent is an optimization algorithm used in deep learning to minimize the loss function by adjusting the model's weights and biases. It involves initializing weights, performing a forward pass, computing loss, calculating gradients, and updating weights.",
+    "keywords": [
+      "gradient descent",
+      "optimization",
+      "loss function",
+      "weights",
+      "neural networks"
+    ]
+  },
+  "What is gradient descent in deep learning?": {
+    "answer": "Gradient descent is an optimization algorithm used in deep learning to minimize the loss function by iteratively adjusting the model's parameters in the direction of the steepest descent of the loss function. This process helps improve the model's accuracy during training.",
+    "keywords": [
+      "gradient descent",
+      "optimization",
+      "loss function",
+      "parameters",
+      "training"
+    ]
+  },
+  "What are the steps involved in gradient descent?": {
+    "answer": "Gradient descent involves initializing parameters, calculating the gradient of the loss function, updating parameters using the gradient, and iterating until convergence is achieved.",
+    "keywords": [
+      "gradient descent",
+      "parameters",
+      "loss function",
+      "updating",
+      "convergence"
+    ]
+  },
+  "Gradient descent in deep learning is the core optimization algorithm used in training deep learning models (like neural networks) to minimize the loss function, which measures how far off the model's predictions are from the actual values. It adjusts the model's weights & biases to reduce prediction error. In deep learning models, have many layers and millions of parameters. These parameters determine how the-model behaves. The right values make the model accurate. Gradient descent is what helps find these right values. Steps of it are present below: 1. Initialise weights 2. Forward pass - Input data flows through the model. 3. Loss computation - Prediction is captured with actual. 4. Backward pass - calculates gradient of loss. 5. Weight update as using gradient descent.": {
+    "answer": "Gradient descent is an optimization algorithm used in deep learning to minimize the loss function by adjusting the model's weights and biases. It involves initializing weights, performing a forward pass, computing loss, calculating gradients, and updating weights.",
+    "keywords": [
+      "gradient descent",
+      "optimization",
+      "loss function",
+      "weights",
+      "neural networks"
+    ]
+  },
+  "What is gradient descent in deep learning and what are the steps involved?": {
+    "answer": "Gradient descent is an optimization algorithm used in deep learning to minimize the loss function by iteratively adjusting model parameters. The steps involved include initializing parameters, calculating the gradient of the loss function, updating parameters, and repeating until convergence.",
+    "keywords": [
+      "gradient descent",
+      "optimization",
+      "loss function",
+      "parameters",
+      "convergence"
+    ]
+  }
+}

@@ -1,53 +1,98 @@
 import json
 import os
+import time
 from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
+
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
+
 def parse_text_to_json(raw_text):
     """
-    Converts raw extracted text into structured JSON using OpenRouter.
+    Converts raw extracted text into structured JSON:
+    {
+      "Q1": {
+        "question": "...",
+        "answer": "..."
+      }
+    }
     """
+
     prompt = f"""
-Convert the following extracted handwritten text into a structured JSON format where keys are the question numbers (e.g., "Q1", "Q2") and values are the corresponding answers.
-Do not include any markdown formatting like ```json or extra text, just return the raw JSON object.
+You are an expert in reading student answer sheets.
+
+IMPORTANT:
+- A single answer may contain paragraphs, steps, diagrams
+- Do NOT split answers based on formatting (like bullet points or numbering)
+- Merge all related content into ONE answer
+
+Return STRICT JSON:
+{{
+  "Q1": {{
+    "question": "Full question text",
+    "answer": "Complete answer including all parts"
+  }}
+}}
+
+Rules:
+- Always include BOTH "question" and "answer"
+- Do NOT create empty answers
+- If question is unclear, still include full answer
+- Do NOT include markdown
 
 Extracted Text:
 {raw_text}
 """
-    try:
-        response = client.chat.completions.create(
-            model="google/gemini-2.5-flash",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=4000
-        )
-    except Exception as e:
-        import time
-        if "429" in str(e):
-            print("Quota exceeded in parser, retrying after 8 seconds...")
-            time.sleep(8)
+
+    for attempt in range(2):
+        try:
             response = client.chat.completions.create(
-                model="google/gemini-2.5-flash",
+                model="openai/gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
                 max_tokens=4000
             )
-        else:
-            raise e
-            
-    response_text = response.choices[0].message.content.strip()
-    
-    # Cleanup markdown if model returns it despite instructions
-    if response_text.startswith("```json"):
-        response_text = response_text[7:]
-    elif response_text.startswith("```"):
-        response_text = response_text[3:]
-        
-    if response_text.endswith("```"):
-        response_text = response_text[:-3]
-        
-    return json.loads(response_text.strip())
+
+            text = response.choices[0].message.content.strip()
+
+            # cleanup
+            if text.startswith("```"):
+                text = text.split("```")[1]
+            if text.endswith("```"):
+                text = text[:-3]
+
+            text = text.strip()
+
+            try:
+                data = json.loads(text)
+
+                # validate
+                for qid, val in data.items():
+                    if not isinstance(val, dict):
+                        raise ValueError("Invalid format")
+                    if "answer" not in val:
+                        raise ValueError("Missing answer")
+
+                return data
+
+            except Exception:
+                print("Parser JSON failed, raw:")
+                print(text)
+
+        except Exception as e:
+            print(f"Parser error: {e}")
+            time.sleep(3)
+
+    # FALLBACK 
+    print("Using fallback parser")
+    return {
+        "Q1": {
+            "question": "Unknown question",
+            "answer": raw_text
+        }
+    }
