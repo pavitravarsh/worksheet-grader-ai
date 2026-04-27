@@ -1,0 +1,15 @@
+# Environment variables
+.env
+
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+
+# Uploaded files (user data)
+uploads/
+
+# OS / editor junk
+.DS_Store
+.vscode/
