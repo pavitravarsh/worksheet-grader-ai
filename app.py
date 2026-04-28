@@ -33,6 +33,7 @@ def upload():
     filename = secure_filename(file.filename)
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
+    print("hello")
 
     try:
         # ---------------- STEP 1: OCR ---------------- #

@@ -23,6 +23,7 @@ def image_to_base64(img: Image.Image) -> str:
     buffered = BytesIO()
     img.save(buffered, format="JPEG")
     return base64.b64encode(buffered.getvalue()).decode('utf-8')
+    
 
 def extract_text(file_path):
     """

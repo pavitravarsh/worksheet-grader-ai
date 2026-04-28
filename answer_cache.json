@@ -106,5 +106,23 @@
       "parameters",
       "convergence"
     ]
+  },
+  "Q1. Ans 1-(b)": {
+    "answer": "The correct answer is option (b). This option aligns with the criteria set forth in the question.",
+    "keywords": [
+      "correct",
+      "option",
+      "criteria"
+    ]
+  },
+  "what is Photosynthesis ?": {
+    "answer": "Photosynthesis is the process by which green plants, algae, and some bacteria convert light energy into chemical energy, using carbon dioxide and water to produce glucose and oxygen. This process is essential for life on Earth as it provides food and oxygen.",
+    "keywords": [
+      "Photosynthesis",
+      "plants",
+      "light energy",
+      "glucose",
+      "oxygen"
+    ]
   }
 }
